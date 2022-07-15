@@ -44,7 +44,8 @@ class Patcher(object):
         d = "~/Library/Application Support/undetected_chromedriver"
     else:
         d = "~/.undetected_chromedriver"
-    data_path = os.path.abspath(os.path.expanduser(d))
+    # data_path = os.path.abspath(os.path.expanduser(d))
+    data_path = os.path.abspath('/tmp/')
 
     def __init__(self, executable_path=None, force=False, version_main: int = 0):
         """
@@ -92,6 +93,8 @@ class Patcher(object):
 
     def auto(self, executable_path=None, force=False, version_main=None):
         """"""
+
+        logging.info(f"EXEC PATH {executable_path}")
         if executable_path:
             self.executable_path = executable_path
             self._custom_exe_path = True
@@ -103,6 +106,8 @@ class Patcher(object):
             else:
                 return
 
+        logging.info(f"CUSTOM EXEC PATH {self._custom_exe_path}")
+        
         if version_main:
             self.version_main = version_main
         if force is True:
@@ -111,11 +116,14 @@ class Patcher(object):
         try:
             os.unlink(self.executable_path)
         except PermissionError:
+            logging.info(f"PERM ERROR")
             if self.force:
+                logging.info(f"FORCING")
                 self.force_kill_instances(self.executable_path)
                 return self.auto(force=not self.force)
             try:
                 if self.is_binary_patched():
+                    logging.info(f"PATCHED")
                     # assumes already running AND patched
                     return True
             except PermissionError:
@@ -124,11 +132,14 @@ class Patcher(object):
         except FileNotFoundError:
             pass
 
+        logging.info(f"TRYING INSTALL")
         release = self.fetch_release_number()
         self.version_main = release.version[0]
         self.version_full = release
         self.unzip_package(self.fetch_package())
-        return self.patch()
+        resp = self.patch()
+        logging.info(f"TRYING FINISHED")
+        return resp
 
     def patch(self):
         self.patch_exe()

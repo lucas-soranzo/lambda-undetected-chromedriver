@@ -381,6 +381,13 @@ class Chrome(selenium.webdriver.chrome.webdriver.WebDriver):
 
         self.options = options
 
+        logging.info("LAUNCHING")
+        logging.info(patcher.executable_path)
+        # logging.info(os.listdir('/tmp/7413fa4579b62544_chromedriver'))
+
+        if not options.binary_location:
+            options.binary_location = patcher.executable_path
+
         if not desired_capabilities:
             desired_capabilities = options.to_capabilities()
 
